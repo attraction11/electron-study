@@ -3,8 +3,8 @@ const { app, BrowserWindow, ipcMain, Menu, MenuItem } = require('electron');
 const path = require('path');
 
 let newWin = null;
-let mainWin = null;
 let menu = null;
+let mainWinId = null; // 定义全局变量存放主窗口 Id
 
 // 区分操作系统
 console.log(process.platform);
@@ -15,12 +15,12 @@ let menuItem = new Menu();
 // 创建一个窗口，加载一个界面，界面通过 web 技术实现的，界面运行在渲染进程中
 function createWindow() {
     // 创建浏览器窗口
-    mainWin = new BrowserWindow({
+    const mainWin = new BrowserWindow({
         x: 100,
         y: 100, // 设置窗口显示的位置，相对于当前屏幕的左上角
         show: false, // 默认情况下创建一个窗口对象之后就会显示，设置为false 就不会显示了
         width: 800,
-        height: 400,
+        height: 600,
         maxHeight: 600,
         maxWidth: 1000,
         minHeight: 200,
@@ -94,7 +94,10 @@ function createWindow() {
         {
             label: '其它功能',
             click() {
-                BrowserWindow.getFocusedWindow().webContents.send('mtp', '来自于自进程的消息')
+                BrowserWindow.getFocusedWindow().webContents.send(
+                    'mtp',
+                    '来自于自进程的消息'
+                );
             },
         },
     ];
@@ -104,6 +107,8 @@ function createWindow() {
 
     // 加载应用的 index.html
     mainWin.loadFile('index.html');
+
+    mainWinId = mainWin.id;
 
     mainWin.on('ready-to-show', () => {
         mainWin.show();
@@ -164,10 +169,11 @@ ipcMain.on('get-current-window', (event) => {
 });
 
 ipcMain.on('window-min', () => {
-    mainWin.minimize();
+    BrowserWindow.fromId(mainWinId).minimize();
 });
 
 ipcMain.on('window-max', () => {
+    let mainWin = BrowserWindow.fromId(mainWinId);
     if (mainWin.isMaximized()) {
         // 为true表示窗口已最大化
         mainWin.restore(); // 将窗口恢复为之前的状态.
@@ -177,7 +183,7 @@ ipcMain.on('window-max', () => {
 });
 
 ipcMain.on('window-close', () => {
-    mainWin.close();
+    BrowserWindow.fromId(mainWinId).close();
 });
 
 ipcMain.on('create-menu', () => {
@@ -214,6 +220,39 @@ ipcMain.on('asyncMsg', (ev, data) => {
 ipcMain.on('syncMsg', (ev, data) => {
     console.log('22222: ', data);
     ev.returnValue = '来自于主进程的同步消息';
+});
+
+// 接收其它进程发送的数据，然后完成后续的逻辑
+ipcMain.on('openWin2', (ev, data) => {
+    console.log('on openWin2...: ', data);
+    // 接收到渲染进程中按钮点击信息之后完成窗口2 的打开
+    let subWin1 = new BrowserWindow({
+        width: 400,
+        height: 300,
+        parent: BrowserWindow.fromId(mainWinId),
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+    subWin1.loadFile('subWin1.html');
+
+    subWin1.on('close', () => {
+        subWin1 = null;
+    });
+
+    // 此时我们是可以直接拿到 sub 进程的窗口对象，因此我们需要考虑的就是等到它里面的所有内容
+    // 加载完成之后再执行数据发送
+    subWin1.webContents.on('did-finish-load', () => {
+        subWin1.webContents.send('its', data);
+    });
+});
+
+ipcMain.on('stm', (ev, data) => {
+    console.log('on stm...: ', data);
+    // 当前我们需要将 data 经过 main 进程转交给指定的渲染进程
+    // 此时我们可以依据指定的窗口 ID 来获取对应的渲染进程，然后执行消息的发送
+    BrowserWindow.fromId(mainWinId).webContents.send('mti', data);
 });
 
 // 当所有窗口都关闭时退出

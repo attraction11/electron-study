@@ -113,4 +113,18 @@ window.addEventListener('DOMContentLoaded', () => {
     ipcRenderer.on('mtp', (ev, data) => {
         console.log('55555: ', data);
     });
+
+    /* 8、渲染间通信 */
+    let openBtn = document.getElementById('openOther')
+
+    openBtn.addEventListener('click', () => {
+        ipcRenderer.send('openWin2', '来自于 index 进程')
+        // 打开窗口2之后，保存数据至....
+        localStorage.setItem('name', 'Hello World')
+    })
+
+    // 接收消息
+    ipcRenderer.on('mti', (ev, data) => {
+        console.log('on mti...: ', data);
+    })
 });
