@@ -74,8 +74,10 @@ ipcMain.on('openNewWindow', () => {
     if (!newWin) {
         // ?? 如何去创建窗口
         let indexMin = new BrowserWindow({
+            parent: BrowserWindow.getFocusedWindow(),
             width: 200,
             height: 200,
+            modal: true
         });
 
         indexMin.loadFile('list.html');
