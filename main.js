@@ -2,6 +2,9 @@
 const {app, BrowserWindow} = require('electron')
 const path = require('path')
 
+const remote = require('@electron/remote/main');
+remote.initialize();
+
 // 创建一个窗口，加载一个界面，界面通过 web 技术实现的，界面运行在渲染进程中
 function createWindow () {
   // 创建浏览器窗口
@@ -18,16 +21,21 @@ function createWindow () {
     // resizable: false,  // 是否允许缩放应用的窗口大小 
     // frame: false,  // 设置为 false 时可以创建一个无边框窗口 默认值为 true
     // transparent: true,  // 是否透明
-    // autoHideMenuBar: true,  // 是否显示菜单栏
+    autoHideMenuBar: true,  // 是否显示菜单栏
     icon: 'lg.ico',  // 设置一个图片路径，可以自定义当前应用的显示图标
     title: "Hello Electron",  // 自定义当前应用的显示标题
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      nodeIntegration: true,  // 是否启用Node integration. 默认值为 false.
+      contextIsolation: false,  // Electron 10+ 中，remote 模块默认处于禁用状态。 
+      // enableRemoteModule: true, // Electron 14+  已经废弃
+      // preload: path.join(__dirname, 'preload.js')
     }
   })
 
   // 加载应用的 index.html
   mainWin.loadFile('index.html')
+
+  remote.enable(mainWin.webContents);
 
   mainWin.on('ready-to-show', () => {
     mainWin.show()
