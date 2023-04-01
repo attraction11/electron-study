@@ -1,12 +1,16 @@
 // 模块来控制应用程序生命周期和创建本机浏览器窗口
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, MenuItem } = require('electron');
 const path = require('path');
 
 let newWin = null;
 let mainWin = null;
+let menu = null;
 
 // 区分操作系统
 console.log(process.platform);
+
+// 自定义全局变量存放菜单项
+let menuItem = new Menu();
 
 // 创建一个窗口，加载一个界面，界面通过 web 技术实现的，界面运行在渲染进程中
 function createWindow() {
@@ -35,7 +39,8 @@ function createWindow() {
         },
     });
 
-    // 01 自定义菜单的内容
+    /*
+     // 01 自定义菜单的内容
     let menuTemp = [
         {
             label: '角色', // 角色菜单
@@ -78,7 +83,24 @@ function createWindow() {
     let menu = Menu.buildFromTemplate(menuTemp);
 
     // 03 将上述的菜单添加至 app 身上
-    Menu.setApplicationMenu(menu);
+    Menu.setApplicationMenu(menu); 
+    */
+
+    // 定义菜单的内容
+    let contextTemp = [
+        { label: 'Run Code' },
+        { label: '转到定义' },
+        { type: 'separator' },
+        {
+            label: '其它功能',
+            click() {
+                console.log('其它功能选项被点击了');
+            },
+        },
+    ];
+
+    // 依据上述的内容来创建 menu
+    menu = Menu.buildFromTemplate(contextTemp);
 
     // 加载应用的 index.html
     mainWin.loadFile('index.html');
@@ -157,6 +179,32 @@ ipcMain.on('window-max', () => {
 ipcMain.on('window-close', () => {
     mainWin.close();
 });
+
+ipcMain.on('create-menu', () => {
+    // 创建菜单
+    let menuFile = new MenuItem({ label: '文件', type: 'normal' });
+    let menuEdit = new MenuItem({ label: '编辑', type: 'normal' });
+    let customMenu = new MenuItem({ label: '自定义菜单项', submenu: menuItem });
+
+    // 将创建好的自定义菜单添加至 menu
+    let menu = new Menu();
+    menu.append(menuFile);
+    menu.append(menuEdit);
+    menu.append(customMenu);
+
+    // 将menu 放置于 app 中显示
+    Menu.setApplicationMenu(menu);
+});
+
+ipcMain.on('add-menu', (event, label) => {
+    console.log('label: ', label);
+    menuItem.append(new MenuItem({ label, type: 'normal' }));
+});
+
+ipcMain.on('right-click', () => {
+    menu.popup({ window: BrowserWindow.getFocusedWindow() })
+});
+
 
 // 当所有窗口都关闭时退出
 app.on('window-all-closed', function () {
