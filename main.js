@@ -1,9 +1,12 @@
 // 模块来控制应用程序生命周期和创建本机浏览器窗口
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 
 let newWin = null;
 let mainWin = null;
+
+// 区分操作系统
+console.log(process.platform);
 
 // 创建一个窗口，加载一个界面，界面通过 web 技术实现的，界面运行在渲染进程中
 function createWindow() {
@@ -19,9 +22,9 @@ function createWindow() {
         minHeight: 200,
         minWidth: 300, // 可以通过 min max 来设置当前应用窗口的最大和最小尺寸
         // resizable: false,  // 是否允许缩放应用的窗口大小
-        frame: false, // 设置为 false 时可以创建一个无边框窗口 默认值为 true
+        // frame: false, // 设置为 false 时可以创建一个无边框窗口 默认值为 true
         // transparent: true,  // 是否透明
-        autoHideMenuBar: true, // 是否显示菜单栏
+        // autoHideMenuBar: true, // 是否显示菜单栏
         icon: 'lg.ico', // 设置一个图片路径，可以自定义当前应用的显示图标
         title: 'Hello Electron', // 自定义当前应用的显示标题
         webPreferences: {
@@ -31,6 +34,51 @@ function createWindow() {
             // preload: path.join(__dirname, 'preload.js'),
         },
     });
+
+    // 01 自定义菜单的内容
+    let menuTemp = [
+        {
+            label: '角色', // 角色菜单
+            submenu: [
+                { label: '复制', role: 'copy' },
+                { label: '剪切', role: 'cut' },
+                { label: '粘贴', role: 'paste' },
+                { label: '最小化', role: 'minimize' },
+            ],
+        },
+        {
+            label: '类型', // 类型菜单
+            submenu: [
+                { label: '选项1', type: 'checkbox' },
+                { label: '选项2', type: 'checkbox' },
+                { label: '选项3', type: 'checkbox' },
+                { type: 'separator' },
+                { label: 'item1', type: 'radio' },
+                { label: 'item2', type: 'radio' },
+                { type: 'separator' },
+                { label: 'windows', type: 'submenu', role: 'windowMenu' },
+            ],
+        },
+        {
+            label: '其它',
+            submenu: [
+                {
+                    label: '打开',
+                    icon: './open.png',
+                    accelerator: 'ctrl + o',
+                    click() {
+                        console.log('open操作执行了');
+                    },
+                },
+            ],
+        },
+    ];
+
+    // 02 依据上述的数据创建一个 menu
+    let menu = Menu.buildFromTemplate(menuTemp);
+
+    // 03 将上述的菜单添加至 app 身上
+    Menu.setApplicationMenu(menu);
 
     // 加载应用的 index.html
     mainWin.loadFile('index.html');
@@ -77,7 +125,7 @@ ipcMain.on('openNewWindow', () => {
             parent: BrowserWindow.getFocusedWindow(),
             width: 200,
             height: 200,
-            modal: true
+            modal: true,
         });
 
         indexMin.loadFile('list.html');
