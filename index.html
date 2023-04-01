@@ -132,20 +132,22 @@
         We are using Node.js <span id="node-version"></span>,
         Chromium <span id="chrome-version"></span>,
         and Electron <span id="electron-version"></span>.
-        <br />
-        <br />
+        <br><br>
         <button id="btn">点击打开新窗口</button>
-        <br>
+        <div>-------------------------------------</div>
         <br>
         <button id="addMenu">创建自定义菜单</button>
-        <br>
-        <br>
+        <br><br>
         <input type="text" placeholder="输入自定义菜单项内容" id="menuCon">
-        <br>
-        <br>
+        <br><br>
         <button id="addItem">添加菜单项</button>
+        <div>-------------------------------------</div>
+        <br>
+        <button id="renderToAsync">渲染进程到主进程异步操作</button>
+        <br><br>
+        <button id="renderToSync">渲染进程到主进程同步操作</button>
       </div>
-          <!-- 定义浮窗设置阻止窗口关闭样式 -->
+      <!-- 定义浮窗设置阻止窗口关闭样式 -->
       <div class="isClose">
         <h3>是否关闭当前应用？</h3>
         <p>系统可能不会保存您的所有更改</p>

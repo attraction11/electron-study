@@ -94,7 +94,7 @@ function createWindow() {
         {
             label: '其它功能',
             click() {
-                console.log('其它功能选项被点击了');
+                BrowserWindow.getFocusedWindow().webContents.send('mtp', '来自于自进程的消息')
             },
         },
     ];
@@ -202,9 +202,19 @@ ipcMain.on('add-menu', (event, label) => {
 });
 
 ipcMain.on('right-click', () => {
-    menu.popup({ window: BrowserWindow.getFocusedWindow() })
+    menu.popup({ window: BrowserWindow.getFocusedWindow() });
 });
 
+// 主进程接收消息操作
+ipcMain.on('asyncMsg', (ev, data) => {
+    console.log('11111: ', data);
+    ev.sender.send('msg1Re', '这是一条来自于主进程的异步消息');
+});
+
+ipcMain.on('syncMsg', (ev, data) => {
+    console.log('22222: ', data);
+    ev.returnValue = '来自于主进程的同步消息';
+});
 
 // 当所有窗口都关闭时退出
 app.on('window-all-closed', function () {

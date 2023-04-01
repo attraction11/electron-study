@@ -37,6 +37,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     /* 4、阻止窗口关闭 */
+    /*     
     window.onbeforeunload = function () {
         let oBox = document.getElementsByClassName('isClose')[0];
         oBox.style.display = 'block';
@@ -53,7 +54,8 @@ window.addEventListener('DOMContentLoaded', () => {
         });
 
         return false;
-    };
+    }; 
+    */
 
     /* 5、自定义菜单（动态） */
     // 获取要应的元素
@@ -86,4 +88,29 @@ window.addEventListener('DOMContentLoaded', () => {
         },
         false
     );
+
+    /* 7、渲染进程与主进程间通信 */
+    // 获取元素
+    const asyncBtn = document.getElementById('renderToAsync');
+    const syncBtn = document.getElementById('renderToSync');
+
+    // 01 采用异步的 API 在渲染进程中给主进程发送消息
+    asyncBtn.addEventListener('click', () => {
+        ipcRenderer.send('asyncMsg', '当前是来自于渲染进程的一条异步消息');
+    });
+
+    // 02 采用同步的方式完成数据通信
+    syncBtn.addEventListener('click', () => {
+        let val = ipcRenderer.sendSync('syncMsg', '同步消息');
+        console.log('44444: ', val);
+    });
+
+    // 当前区域是接收消息
+    ipcRenderer.on('msg1Re', (ev, data) => {
+        console.log('33333: ', data);
+    });
+
+    ipcRenderer.on('mtp', (ev, data) => {
+        console.log('55555: ', data);
+    });
 });
