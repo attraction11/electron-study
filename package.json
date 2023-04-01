@@ -20,8 +20,5 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "^23.2.0"
-  },
-  "dependencies": {
-    "@electron/remote": "^2.0.9"
   }
 }

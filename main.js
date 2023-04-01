@@ -1,9 +1,8 @@
 // 模块来控制应用程序生命周期和创建本机浏览器窗口
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 
-const remote = require('@electron/remote/main');
-remote.initialize();
+
 
 // 创建一个窗口，加载一个界面，界面通过 web 技术实现的，界面运行在渲染进程中
 function createWindow () {
@@ -35,8 +34,6 @@ function createWindow () {
   // 加载应用的 index.html
   mainWin.loadFile('index.html')
 
-  remote.enable(mainWin.webContents);
-
   mainWin.on('ready-to-show', () => {
     mainWin.show()
   })
@@ -64,6 +61,19 @@ function createWindow () {
 app.whenReady().then(() => {
   createWindow()
   console.log('111 ready...')
+
+  ipcMain.on('openIndex', () => {
+      // ?? 如何去创建窗口
+      let indexMin = new BrowserWindow({
+        width: 200,
+        height: 200
+      })
+      indexMin.loadFile('list.html')
+
+      indexMin.on("close", () => {
+        indexMin = null
+      })
+  })
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
