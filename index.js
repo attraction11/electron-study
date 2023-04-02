@@ -1,4 +1,5 @@
-const { ipcRenderer  } = require('electron');
+const path = require('path')
+const { shell, ipcRenderer  } = require('electron');
 
 window.addEventListener('DOMContentLoaded', () => {
     /* 1、显示当前 electron 运行的环境 */
@@ -138,5 +139,23 @@ window.addEventListener('DOMContentLoaded', () => {
   
     dialogBtnErr.addEventListener('click', () => {
       ipcRenderer.send('open-error-box', ['自定义标题', '当前错误内容']); // 通知主进程弹出 Dialog
+    })
+
+    /* 10、shell */
+    let openUrl = document.getElementById('openUrl')
+    let openFolder = document.getElementById('openFolder')
+  
+    openUrl.addEventListener('click', (ev) => {
+      ev.preventDefault()
+      shell.openExternal("https://www.electronjs.org/zh/")
+    })
+  
+    openFolder.addEventListener('click', (ev) => {
+      shell.showItemInFolder(path.resolve(__filename))
+    })
+
+    ipcRenderer.on('openUrl', () => {
+        let iframe = document.getElementById('webview')
+        iframe.src = 'https://www.electronjs.org/'
     })
 });

@@ -105,6 +105,13 @@
       color: #fff;
       background-color: #7b8c7c;
     }
+    iframe {
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 50%;
+      position: fixed;
+    }
     </style>
   </head>
   <body>
@@ -152,6 +159,13 @@
         <button id="dialogBtn">显示对话框</button>
         <br><br>
         <button id="dialogBtnErr">显示错误对话框</button>
+        <div>-------------------------------------</div>
+        <br>
+        <button id="openUrl">打开URL</button>
+        <br><br>
+        <button id="openFolder">打开目录</button>
+        <br><br>
+        <iframe src="https://www.electronjs.org/zh/" frameborder="0" id="webview"></iframe>
       </div>
       <!-- 定义浮窗设置阻止窗口关闭样式 -->
       <div class="isClose">

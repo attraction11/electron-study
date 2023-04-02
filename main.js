@@ -1,5 +1,13 @@
 // 模块来控制应用程序生命周期和创建本机浏览器窗口
-const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog } = require('electron');
+const {
+    app,
+    BrowserWindow,
+    ipcMain,
+    Menu,
+    MenuItem,
+    dialog,
+    shell
+} = require('electron');
 const path = require('path');
 
 let newWin = null;
@@ -188,7 +196,25 @@ ipcMain.on('window-close', () => {
 
 ipcMain.on('create-menu', () => {
     // 创建菜单
-    let menuFile = new MenuItem({ label: '文件', type: 'normal' });
+    let menuFile = new MenuItem({
+        label: '菜单',
+        submenu: [
+            {
+                label: '关于',
+                click() {
+                    shell.openExternal('https://www.electronjs.org/zh/');
+                },
+            },
+            {
+                label: '打开',
+                click() {
+                    BrowserWindow.getFocusedWindow().webContents.send(
+                        'openUrl'
+                    );
+                },
+            },
+        ],
+    });
     let menuEdit = new MenuItem({ label: '编辑', type: 'normal' });
     let customMenu = new MenuItem({ label: '自定义菜单项', submenu: menuItem });
 
@@ -256,23 +282,25 @@ ipcMain.on('stm', (ev, data) => {
 });
 
 ipcMain.on('open-dialog', () => {
-    dialog.showOpenDialog({
-        defaultPath: __dirname,
-        buttonLabel: '请选择',
-        title: 'xxxx',
-        properties: ['openFile', 'multiSelections'],
-        filters: [
-          { "name": '代码文件', extensions: ['js', 'json', 'html'] },
-          { "name": '图片文件', extensions: ['ico', 'jpeg', 'png'] },
-          { "name": '媒体类型', extensions: ['avi', 'mp4', 'mp3'] }
-        ]
-      }).then((ret) => {
-        console.log(ret)
-      })
+    dialog
+        .showOpenDialog({
+            defaultPath: __dirname,
+            buttonLabel: '请选择',
+            title: 'xxxx',
+            properties: ['openFile', 'multiSelections'],
+            filters: [
+                { name: '代码文件', extensions: ['js', 'json', 'html'] },
+                { name: '图片文件', extensions: ['ico', 'jpeg', 'png'] },
+                { name: '媒体类型', extensions: ['avi', 'mp4', 'mp3'] },
+            ],
+        })
+        .then((ret) => {
+            console.log(ret);
+        });
 });
 
 ipcMain.on('open-error-box', (ev, data) => {
-    dialog.showErrorBox(...data)
+    dialog.showErrorBox(...data);
 });
 
 // 当所有窗口都关闭时退出
