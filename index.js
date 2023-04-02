@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer  } = require('electron');
 
 window.addEventListener('DOMContentLoaded', () => {
     /* 1、显示当前 electron 运行的环境 */
@@ -126,5 +126,17 @@ window.addEventListener('DOMContentLoaded', () => {
     // 接收消息
     ipcRenderer.on('mti', (ev, data) => {
         console.log('on mti...: ', data);
+    })
+
+    /* 9、Dialog 模块 */
+    const dialogBtn = document.getElementById('dialogBtn')
+    const dialogBtnErr = document.getElementById('dialogBtnErr')
+  
+    dialogBtn.addEventListener('click', () => {
+        ipcRenderer.send('open-dialog'); // 通知主进程弹出 Dialog
+    })
+  
+    dialogBtnErr.addEventListener('click', () => {
+      ipcRenderer.send('open-error-box', ['自定义标题', '当前错误内容']); // 通知主进程弹出 Dialog
     })
 });

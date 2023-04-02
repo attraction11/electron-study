@@ -1,5 +1,5 @@
 // 模块来控制应用程序生命周期和创建本机浏览器窗口
-const { app, BrowserWindow, ipcMain, Menu, MenuItem } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog } = require('electron');
 const path = require('path');
 
 let newWin = null;
@@ -253,6 +253,26 @@ ipcMain.on('stm', (ev, data) => {
     // 当前我们需要将 data 经过 main 进程转交给指定的渲染进程
     // 此时我们可以依据指定的窗口 ID 来获取对应的渲染进程，然后执行消息的发送
     BrowserWindow.fromId(mainWinId).webContents.send('mti', data);
+});
+
+ipcMain.on('open-dialog', () => {
+    dialog.showOpenDialog({
+        defaultPath: __dirname,
+        buttonLabel: '请选择',
+        title: 'xxxx',
+        properties: ['openFile', 'multiSelections'],
+        filters: [
+          { "name": '代码文件', extensions: ['js', 'json', 'html'] },
+          { "name": '图片文件', extensions: ['ico', 'jpeg', 'png'] },
+          { "name": '媒体类型', extensions: ['avi', 'mp4', 'mp3'] }
+        ]
+      }).then((ret) => {
+        console.log(ret)
+      })
+});
+
+ipcMain.on('open-error-box', (ev, data) => {
+    dialog.showErrorBox(...data)
 });
 
 // 当所有窗口都关闭时退出
