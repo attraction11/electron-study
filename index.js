@@ -1,5 +1,5 @@
 const path = require('path')
-const { shell, ipcRenderer  } = require('electron');
+const { shell, ipcRenderer, clipboard, nativeImage  } = require('electron');
 
 window.addEventListener('DOMContentLoaded', () => {
     /* 1、显示当前 electron 运行的环境 */
@@ -165,5 +165,36 @@ window.addEventListener('DOMContentLoaded', () => {
     triggerBtn.addEventListener('click', () => {
         ipcRenderer.send('show-notice'); // 通知主进程弹出 Dialog
     })
+
+    /* 12、剪切板 */
+    // 获取元素
+    const copyBtn = document.getElementById('copyBtn')
+    const pasteBtn = document.getElementById('pasteBtn')
+    const aInput = document.querySelector('input.txt1')
+    const bInput = document.querySelector('input.txt2')
+    const clipImg = document.getElementById('clipImg')
+    const ret = null
+
+    copyBtn.onclick = function () {
+        // 复制内容
+        ret = clipboard.writeText(aInput.value)
+    }
+
+    pasteBtn.onclick = function () {
+        // 粘贴内容
+        bInput.value = clipboard.readText(ret)
+    }
+
+    clipImg.onclick = function () {
+        // 将图片放置于剪切板当中的时候要求图片类型属于 nativeImage 实例
+        let oImage = nativeImage.createFromPath('./msg.png')
+        clipboard.writeImage(oImage)
+
+        // 将剪切板中的图片做为 DOM 元素显示在界面上
+        let oImg = clipboard.readImage()
+        let oImgDom = new Image()
+        oImgDom.src = oImg.toDataURL()
+        document.body.appendChild(oImgDom)
+    }
 
 });
