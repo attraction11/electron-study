@@ -141,9 +141,9 @@ window.addEventListener('DOMContentLoaded', () => {
       ipcRenderer.send('open-error-box', ['自定义标题', '当前错误内容']); // 通知主进程弹出 Dialog
     })
 
-    /* 10、shell */
-    let openUrl = document.getElementById('openUrl')
-    let openFolder = document.getElementById('openFolder')
+    /* 10、shell 与 iframe */
+    const openUrl = document.getElementById('openUrl')
+    const openFolder = document.getElementById('openFolder')
   
     openUrl.addEventListener('click', (ev) => {
       ev.preventDefault()
@@ -158,4 +158,12 @@ window.addEventListener('DOMContentLoaded', () => {
         let iframe = document.getElementById('webview')
         iframe.src = 'https://www.electronjs.org/'
     })
+
+    /* 11、基于 H5 实现消息通知 */
+    const triggerBtn = document.getElementById('triggerBtn')
+
+    triggerBtn.addEventListener('click', () => {
+        ipcRenderer.send('show-notice'); // 通知主进程弹出 Dialog
+    })
+
 });

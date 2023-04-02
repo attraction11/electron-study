@@ -6,9 +6,13 @@ const {
     Menu,
     MenuItem,
     dialog,
-    shell
+    shell,
+    Notification,
 } = require('electron');
 const path = require('path');
+
+// 禁用硬件加速
+// app.disableHardwareAcceleration()
 
 let newWin = null;
 let menu = null;
@@ -301,6 +305,23 @@ ipcMain.on('open-dialog', () => {
 
 ipcMain.on('open-error-box', (ev, data) => {
     dialog.showErrorBox(...data);
+});
+
+ipcMain.on('show-notice', (ev, data) => {
+    const isAllowed = Notification.isSupported();
+    if (!isAllowed) return;
+
+    const option = {
+        title: 'Electron',
+        body: '使用前端技术，构建跨平台桌面应用程序',
+        icon: './msg.png',
+    };
+
+    const myNotification = new Notification(option);
+    myNotification.on('click', () => {
+        console.log('点击了消息页卡');
+    });
+    myNotification.show();
 });
 
 // 当所有窗口都关闭时退出
