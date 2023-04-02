@@ -8,6 +8,7 @@ const {
     dialog,
     shell,
     Notification,
+    globalShortcut
 } = require('electron');
 const path = require('path');
 
@@ -155,6 +156,20 @@ app.whenReady().then(() => {
         // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+});
+
+app.on('ready', () => {
+    // 注册
+    let ret = globalShortcut.register('ctrl + q', () => {
+        console.log('快捷键注册成功');
+    });
+
+    if (!ret) {
+        console.log('注册失败');
+    }
+
+    console.log(globalShortcut.isRegistered('ctrl + q'));
+    console.log(ret, '~~~~~');
 });
 
 ipcMain.on('openNewWindow', () => {
@@ -336,6 +351,8 @@ app.on('before-quit', () => {
 
 app.on('will-quit', () => {
     console.log('666 will-quit...');
+    globalShortcut.unregister('ctrl + q');
+    globalShortcut.unregisterAll();
 });
 
 app.on('quit', () => {
